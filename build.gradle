@@ -1,0 +1,23 @@
+plugins {
+    id 'java-library'
+    id 'maven'
+    id "com.dua3.gradle.jpms" version "0.8.3"
+}
+
+repositories {
+    jcenter()
+}
+
+group 'com.limelion'
+version '1.0.0'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+moduleInfo {
+    multiRelease = true
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
