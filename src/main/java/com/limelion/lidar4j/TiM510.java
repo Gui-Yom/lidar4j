@@ -3,7 +3,7 @@ package com.limelion.lidar4j;
 import java.io.*;
 
 /**
- * https://tinyurl.com/yywym8cd
+ * A Sick TiM510 2D laser scanner.
  */
 public class TiM510 implements ScanDevice, Closeable {
 
@@ -12,12 +12,16 @@ public class TiM510 implements ScanDevice, Closeable {
     private boolean isConnected;
     private BufferedWriter portOutput;
     private InputStream portInput;
-
     public TiM510(InputStream in, OutputStream out) {
 
         this.portInput = in;
         this.portOutput = new BufferedWriter(new OutputStreamWriter(out));
         this.isConnected = true;
+    }
+
+    public boolean isConnected() {
+
+        return isConnected;
     }
 
     public ScanDataResponse getScanData() {

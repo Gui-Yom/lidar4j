@@ -2,21 +2,22 @@ package com.limelion.lidar4j;
 
 public class Scan {
 
-    private float[] angles;
+    private float[] x;
     // Premultiplied ranges
-    private float[] ranges;
+    private float[] y;
     // Find object
     private int firstRay;
     private int lastRay;
     private float objectAngle;
 
+    // TODO convert from polar to cartesian
     public static Scan parse(ScanDataResponse[] sdr, float start, float end, float threshold) {
 
         Scan s = new Scan();
 
         int number = (int) ((end - start) / 3);// + 1;
-        s.angles = new float[number];
-        s.ranges = new float[number];
+        s.x = new float[number];
+        s.y = new float[number];
 
         System.out.println(number);
 
@@ -30,25 +31,26 @@ public class Scan {
 
             for (int j = 0; j < ranges.length; ++j) {
                 if (angle >= start && angle < end) {
-                    s.angles[k] += angle;
-                    s.ranges[k] += ranges[j] * scalingFactor;
+
+                    s.x[k] = ranges[i] * (float) Math.cos(Math.toRadians(angle)) * scalingFactor;
+                    s.y[k] = ranges[i] * (float) Math.sin(Math.toRadians(angle)) * scalingFactor;
                     ++k;
                 }
                 angle += angleStep;
             }
             System.out.println(k);
         }
-        for (int i = 0; i < s.angles.length; ++i) {
+        for (int i = 0; i < number; ++i) {
 
-            s.angles[i] /= sdr.length;
-            s.ranges[i] /= sdr.length;
+            s.x[i] /= sdr.length;
+            s.y[i] /= sdr.length;
         }
 
         s.firstRay = -1;
         s.lastRay = -1;
 
-        for (int i = 0; i < s.ranges.length; ++i) {
-            if (s.ranges[i] <= threshold) {
+        for (int i = 0; i < number; ++i) {
+            if (distance(s.x[i], s.y[i]) <= threshold) {
                 s.lastRay = i;
                 if (s.firstRay == -1)
                     s.firstRay = i;
@@ -56,10 +58,10 @@ public class Scan {
         }
         //System.out.printf("Infered rays : %d -> %d%n", s.firstRay, s.lastRay);
 
-        double ux = s.ranges[s.lastRay] * Math.cos(Math.toRadians(s.angles[s.lastRay])) - s.ranges[s.firstRay] * Math.cos(Math.toRadians(s.angles[s.firstRay]));
-        double uy = s.ranges[s.lastRay] * Math.sin(Math.toRadians(s.angles[s.lastRay])) - s.ranges[s.firstRay] * Math.sin(Math.toRadians(s.angles[s.firstRay]));
+        double ux = s.x[s.lastRay] - s.x[s.firstRay];
+        double uy = s.y[s.lastRay] - s.y[s.firstRay];
         s.objectAngle = (float) Math.toDegrees(Math.PI - Math.acos(ux / Math.sqrt(Math.pow(ux, 2) + Math.pow(uy, 2))));
-        System.out.printf("Object angle : %f deg%n", s.objectAngle);
+        //System.out.printf("Object angle : %f deg%n", s.objectAngle);
 
         return s;
     }
@@ -67,6 +69,11 @@ public class Scan {
     public static Scan parse(ScanDataResponse[] sdr, float threshold) {
 
         return parse(sdr, -45, 225, threshold);
+    }
+
+    private static float distance(float x, float y) {
+
+        return (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
     }
 
     public float getObjectAngle() {
@@ -84,13 +91,13 @@ public class Scan {
         return lastRay;
     }
 
-    public float[] getAngles() {
+    public float[] getX() {
 
-        return angles;
+        return x;
     }
 
-    public float[] getRanges() {
+    public float[] getY() {
 
-        return ranges;
+        return y;
     }
 }

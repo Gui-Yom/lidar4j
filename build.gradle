@@ -8,14 +8,24 @@ repositories {
     jcenter()
 }
 
+dependencies {
+    testImplementation "com.fazecast:jSerialComm:2.5.1"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.5.1"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.5.1"
+}
+
 group 'com.limelion'
-version '1.0.0'
+version '1.1.0'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 moduleInfo {
     multiRelease = true
+}
+
+test {
+    useJUnitPlatform()
 }
 
 tasks.withType(JavaCompile) {

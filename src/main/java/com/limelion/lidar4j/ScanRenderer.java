@@ -27,15 +27,15 @@ public class ScanRenderer {
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
         //g.setColor(rayColor);
 
-        for (int i = 0; i < scan.getRanges().length; ++i) {
+        for (int i = 0; i < scan.getX().length; ++i) {
 
             if (i >= scan.getFirstRay() && i <= scan.getLastRay())
                 g.setColor(objectRayColor);
             else
                 g.setColor(rayColor);
 
-            int x = (int) (scan.getRanges()[i] * Math.cos(Math.toRadians(scan.getAngles()[i] + rotation)) * scale) + centerX;
-            int y = (int) (scan.getRanges()[i] * Math.sin(Math.toRadians(scan.getAngles()[i] + rotation)) * scale) + centerY;
+            int x = (int) (rotX(scan.getX()[i], scan.getY()[i], rotation) * scale) + centerX;
+            int y = (int) (rotY(scan.getX()[i], scan.getY()[i], rotation) * scale) + centerY;
 
             if (mirror)
                 x = width - x;
@@ -48,8 +48,8 @@ public class ScanRenderer {
 
         g.setColor(objectColor);
 
-        int x1 = (int) (scan.getRanges()[scan.getFirstRay()] * Math.cos(Math.toRadians(scan.getAngles()[scan.getFirstRay()] + rotation)) * scale) + centerX;
-        int x2 = (int) (scan.getRanges()[scan.getLastRay()] * Math.cos(Math.toRadians(scan.getAngles()[scan.getLastRay()] + rotation)) * scale) + centerX;
+        int x1 = (int) (rotX(scan.getX()[scan.getFirstRay()], scan.getY()[scan.getFirstRay()], rotation) * scale) + centerX;
+        int x2 = (int) (rotX(scan.getX()[scan.getLastRay()], scan.getY()[scan.getLastRay()], rotation) * scale) + centerY;
 
         if (mirror) {
             x1 = width - x1;
@@ -57,11 +57,21 @@ public class ScanRenderer {
         }
 
         g.drawLine(x1,
-                   (int) (scan.getRanges()[scan.getFirstRay()] * Math.sin(Math.toRadians(scan.getAngles()[scan.getFirstRay()] + rotation)) * scale) + centerY,
+                   (int) (rotY(scan.getX()[scan.getFirstRay()], scan.getY()[scan.getFirstRay()], rotation) * scale) + centerY,
                    x2,
-                   (int) (scan.getRanges()[scan.getLastRay()] * Math.sin(Math.toRadians(scan.getAngles()[scan.getLastRay()] + rotation)) * scale) + centerY);
+                   (int) (rotY(scan.getX()[scan.getLastRay()], scan.getY()[scan.getLastRay()], rotation) * scale) + centerY);
 
         g.dispose();
         return img;
+    }
+
+    private static float rotX(float x, float y, float angle) {
+
+        return (float) (x * Math.cos(angle) - y * Math.sin(angle));
+    }
+
+    private static float rotY(float x, float y, float angle) {
+
+        return (float) (x * Math.sin(angle) + y * Math.cos(angle));
     }
 }
